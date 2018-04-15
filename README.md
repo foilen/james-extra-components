@@ -60,3 +60,19 @@ CREATE TABLE IF NOT EXISTS `FOILEN_REDIRECTIONS` (
 
 CREATE INDEX IF NOT EXISTS `FOILEN_REDIRECTIONS` ON `FOILEN_REDIRECTIONS` (FROM_DOMAIN, FROM_USER);
 ```
+
+# Matcher - SenderIsLocalAndSameAsSMTPAuth
+
+## Description
+
+Matches when the user is auth (like the standard SMTPAuthSuccessful), but also checks that the sender is the currently logged-in user. This is to ensure there is no impersonation of other users.
+
+## Configuration
+
+In *mailetcontainer.xml*, you can add it at any stage with: 
+
+```
+<mailet match="com.foilen.james.components.matcher.SenderIsLocalAndSameAsSMTPAuth" class="ToProcessor">
+	<processor>auth-user-relay</processor>
+</mailet>
+```
