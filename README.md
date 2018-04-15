@@ -2,6 +2,10 @@
 
 Some Mailets and Matchers for Apache James
 
+# Get the binaries
+
+Available here: https://dl.bintray.com/foilen/maven/com/foilen/james-extra-components/
+
 # Mailet - DumpAllSystemErr
 
 ## Description
