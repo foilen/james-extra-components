@@ -25,9 +25,13 @@ dependencies {
 
   // Mailet
   compile "org.apache.james:apache-mailet-base:$apacheJamesVersion"
-
-  // Test
-  testCompile 'junit:junit'
+  compile "org.apache.james:james-server-util:$apacheJamesVersion"
+  compile "javax.inject:javax.inject:1"
+  
+  testCompile "com.h2database:h2:1.4.197"
+  testCompile "junit:junit:4.12"
+  testCompile "org.springframework:spring-jdbc:5.0.5.RELEASE"
+  testCompile "org.springframework:spring-test:5.0.5.RELEASE"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

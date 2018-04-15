@@ -7,7 +7,7 @@
     http://opensource.org/licenses/MIT
 
  */
-package com.foilen.james.components;
+package com.foilen.james.components.mailet;
 
 import java.io.IOException;
 import java.sql.Connection;
