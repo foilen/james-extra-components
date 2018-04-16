@@ -21,14 +21,20 @@ public class SenderIsLocalAndSameAsSMTPAuth extends GenericMatcher {
 
     @Override
     public Collection<MailAddress> match(Mail mail) {
-        String authUser = (String) mail.getAttribute(Mail.SMTP_AUTH_USER_ATTRIBUTE_NAME);
-        String sender = mail.getSender().asString();
 
-        if (authUser != null && sender.equalsIgnoreCase(authUser)) {
+        String authUser = (String) mail.getAttribute(Mail.SMTP_AUTH_USER_ATTRIBUTE_NAME);
+        MailAddress sender = mail.getSender();
+        if (sender == null) {
+            return ImmutableList.of();
+        }
+
+        String senderEmail = sender.asString();
+        if (authUser != null && senderEmail.equalsIgnoreCase(authUser)) {
             return mail.getRecipients();
         } else {
             return ImmutableList.of();
         }
+
     }
 
 }

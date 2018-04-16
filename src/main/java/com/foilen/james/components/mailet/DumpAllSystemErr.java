@@ -20,6 +20,7 @@ import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import org.apache.mailet.Mail;
+import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.GenericMailet;
@@ -86,7 +87,12 @@ public class DumpAllSystemErr extends GenericMailet {
             });
 
             System.err.println("---[Mail - Sender]---");
-            System.err.println("Email: " + mail.getSender().asString());
+            MailAddress sender = mail.getSender();
+            if (sender == null) {
+                System.err.println("Sender is null");
+            } else {
+                System.err.println("Email: " + sender.asString());
+            }
 
             // Recipients
             System.err.println("---[Mail - Recipients]---");
