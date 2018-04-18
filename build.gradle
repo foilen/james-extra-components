@@ -24,14 +24,23 @@ repositories {
 dependencies {
 
   // Mailet
-  compile "org.apache.james:apache-mailet-base:$apacheJamesVersion"
-  compile "org.apache.james:james-server-util:$apacheJamesVersion"
-  compile "javax.inject:javax.inject:1"
+  compileOnly "javax.inject:javax.inject:1"
+  compileOnly "org.apache.james:apache-mailet-base:$apacheJamesVersion"
+  compileOnly "org.apache.james:james-server-data-api:$apacheJamesVersion"
+  compileOnly "org.apache.james:james-server-protocols-library:$apacheJamesVersion"
+  compileOnly "org.apache.james:james-server-protocols-smtp:$apacheJamesVersion"
+  compileOnly "org.apache.james:james-server-util:$apacheJamesVersion"
   
   testCompile "com.h2database:h2:1.4.197"
+  testCompile "javax.inject:javax.inject:1"
   testCompile "junit:junit:4.12"
   testCompile "org.springframework:spring-jdbc:5.0.5.RELEASE"
   testCompile "org.springframework:spring-test:5.0.5.RELEASE"
+  testCompile "org.apache.james:apache-mailet-base:$apacheJamesVersion"
+  testCompile "org.apache.james:james-server-data-api:$apacheJamesVersion"
+  testCompile "org.apache.james:james-server-protocols-library:$apacheJamesVersion"
+  testCompile "org.apache.james:james-server-protocols-smtp:$apacheJamesVersion"
+  testCompile "org.apache.james:james-server-util:$apacheJamesVersion"
 }
 
 task sourcesJar(type: Jar, dependsOn: classes) {

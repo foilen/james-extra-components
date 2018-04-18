@@ -17,8 +17,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -28,26 +26,13 @@ import org.apache.mailet.Mail;
 import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
 
-import com.foilen.james.components.RedirectionCacheLoader;
+import com.foilen.james.components.common.RedirectionManager;
 import com.google.common.base.Charsets;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.LoadingCache;
 import com.google.common.io.Resources;
 
 public class ExactAndCatchAllRedirections extends GenericMailet {
 
-    private static final String CATCH_ALL_FROM_USER = "*";
     protected DataSource datasource;
-
-    private LoadingCache<MailAddress, List<MailAddress>> redirectionsByRecipient;
-
-    protected List<MailAddress> getRedirections(MailAddress recipient) throws MessagingException {
-        try {
-            return redirectionsByRecipient.get(recipient);
-        } catch (ExecutionException e) {
-            throw new MessagingException("Cannot load the list", e);
-        }
-    }
 
     @Override
     public void init() throws MessagingException {
@@ -56,10 +41,7 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
         int cacheMaxEntries = Integer.valueOf(getInitParameter("cacheMaxEntries", "1000"));
 
         // Prepare the cache
-        redirectionsByRecipient = CacheBuilder.newBuilder() //
-                .expireAfterWrite(cacheMaxTimeInSeconds, TimeUnit.SECONDS) //
-                .maximumSize(cacheMaxEntries) //
-                .build(new RedirectionCacheLoader(datasource));
+        RedirectionManager.initCache(cacheMaxTimeInSeconds, cacheMaxEntries, datasource);
 
         // Create the table if missing
         try (Connection connection = datasource.getConnection()) {
@@ -79,7 +61,7 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
         }
 
         // Check exact redirection
-        List<MailAddress> redirections = getRedirections(recipient);
+        List<MailAddress> redirections = RedirectionManager.getRedirections(recipient);
         if (!redirections.isEmpty()) {
             Set<MailAddress> finalRedirections = new HashSet<>();
             for (MailAddress redirection : redirections) {
@@ -94,7 +76,7 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
         }
 
         // Check catch-all redirection
-        redirections = getRedirections(new MailAddress(CATCH_ALL_FROM_USER, recipient.getDomain()));
+        redirections = RedirectionManager.getCatchAllRedirections(recipient);
         if (!redirections.isEmpty()) {
             Set<MailAddress> finalRedirections = new HashSet<>();
             for (MailAddress redirection : redirections) {

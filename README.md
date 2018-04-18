@@ -51,6 +51,17 @@ to
 </mailet>
 ```
 
+In *smtpserver.xml*, you can change 
+
+```
+<handler class="org.apache.james.smtpserver.fastfail.ValidRcptHandler" />
+```
+to
+ 
+```
+<handler class="com.foilen.james.components.handler.fastfail.ValidRcptHandler" />
+```
+
 ## MySQL/MariaDB schema
 
 That schema is automatically called when the mailet is being initialized. 
