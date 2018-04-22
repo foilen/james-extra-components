@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 import javax.mail.internet.AddressException;
 import javax.sql.DataSource;
 
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
 import org.junit.Assert;

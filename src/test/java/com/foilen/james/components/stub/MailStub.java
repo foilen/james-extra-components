@@ -19,8 +19,8 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.PerRecipientHeaders;
 import org.apache.mailet.PerRecipientHeaders.Header;
 
@@ -73,7 +73,7 @@ public class MailStub implements Mail {
     @Override
     public PerRecipientHeaders getPerRecipientSpecificHeaders() {
         throw new IllegalAccessError("Not Implemented");
-    };
+    }
 
     @Override
     public Collection<MailAddress> getRecipients() {

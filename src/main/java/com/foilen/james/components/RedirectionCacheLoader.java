@@ -19,7 +19,7 @@ import java.util.List;
 import javax.mail.MessagingException;
 import javax.sql.DataSource;
 
-import org.apache.mailet.MailAddress;
+import org.apache.james.core.MailAddress;
 
 import com.google.common.cache.CacheLoader;
 
@@ -34,7 +34,7 @@ public final class RedirectionCacheLoader extends CacheLoader<MailAddress, List<
     @Override
     public List<MailAddress> load(MailAddress recipient) throws Exception {
         String fromUser = recipient.getLocalPart();
-        String fromDomain = recipient.getDomain();
+        String fromDomain = recipient.getDomain().asString();
 
         try (Connection connection = datasource.getConnection()) {
             PreparedStatement s = connection.prepareStatement("SELECT TO_EMAIL FROM FOILEN_REDIRECTIONS WHERE FROM_USER = ? AND FROM_DOMAIN = ?");

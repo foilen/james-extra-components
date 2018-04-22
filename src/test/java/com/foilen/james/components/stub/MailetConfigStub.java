@@ -12,7 +12,7 @@ package com.foilen.james.components.stub;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.mailet.MailAddress;
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 

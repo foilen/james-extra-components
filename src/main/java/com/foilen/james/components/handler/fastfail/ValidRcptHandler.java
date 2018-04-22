@@ -9,12 +9,26 @@
  */
 package com.foilen.james.components.handler.fastfail;
 
-import org.apache.james.protocols.smtp.MailAddress;
+import javax.inject.Inject;
+
+import org.apache.james.core.MailAddress;
+import org.apache.james.domainlist.api.DomainList;
 import org.apache.james.protocols.smtp.SMTPSession;
+import org.apache.james.rrt.api.RecipientRewriteTable;
+import org.apache.james.user.api.UsersRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.foilen.james.components.common.RedirectionManager;
 
 public class ValidRcptHandler extends org.apache.james.smtpserver.fastfail.ValidRcptHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ValidRcptHandler.class);
+
+    @Inject
+    public ValidRcptHandler(UsersRepository users, RecipientRewriteTable recipientRewriteTable, DomainList domains) {
+        super(users, recipientRewriteTable, domains);
+    }
 
     @Override
     protected boolean isValidRecipient(SMTPSession session, MailAddress recipient) {
@@ -26,13 +40,12 @@ public class ValidRcptHandler extends org.apache.james.smtpserver.fastfail.Valid
 
         try {
             // Redirection
-            org.apache.mailet.MailAddress recipientMailAddress = new org.apache.mailet.MailAddress(recipient.getLocalPart(), recipient.getDomain());
-            result |= !RedirectionManager.getRedirections(recipientMailAddress).isEmpty();
+            result |= !RedirectionManager.getRedirections(recipient).isEmpty();
 
             // Catch-all
-            result |= !RedirectionManager.getCatchAllRedirections(recipientMailAddress).isEmpty();
+            result |= !RedirectionManager.getCatchAllRedirections(recipient).isEmpty();
         } catch (Exception e) {
-            session.getLogger().info("Unable to access Redirection", e);
+            LOGGER.info("Unable to access Redirection", e);
         }
 
         return result;

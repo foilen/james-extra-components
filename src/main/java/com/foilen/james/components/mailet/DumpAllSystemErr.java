@@ -19,13 +19,17 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetConfig;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.GenericMailet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DumpAllSystemErr extends GenericMailet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DumpAllSystemErr.class);
 
     protected DataSource datasource;
 
@@ -105,8 +109,8 @@ public class DumpAllSystemErr extends GenericMailet {
             MimeMessage message = mail.getMessage();
             message.writeTo(System.err);
             System.err.println("------------");
-        } catch (IOException ioe) {
-            log("error printing message", ioe);
+        } catch (IOException e) {
+            LOGGER.error("error printing message", e);
         }
     }
 

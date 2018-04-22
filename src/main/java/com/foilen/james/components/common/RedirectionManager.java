@@ -16,7 +16,7 @@ import java.util.concurrent.TimeUnit;
 import javax.mail.MessagingException;
 import javax.sql.DataSource;
 
-import org.apache.mailet.MailAddress;
+import org.apache.james.core.MailAddress;
 
 import com.foilen.james.components.RedirectionCacheLoader;
 import com.google.common.cache.CacheBuilder;

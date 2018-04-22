@@ -22,15 +22,19 @@ import javax.inject.Inject;
 import javax.mail.MessagingException;
 import javax.sql.DataSource;
 
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.base.GenericMailet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.foilen.james.components.common.RedirectionManager;
 import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 public class ExactAndCatchAllRedirections extends GenericMailet {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExactAndCatchAllRedirections.class);
 
     protected DataSource datasource;
 
@@ -45,7 +49,7 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
 
         // Create the table if missing
         try (Connection connection = datasource.getConnection()) {
-            log("Creating the table and index");
+            LOGGER.info("Creating the table and index");
             connection.createStatement().execute(Resources.asCharSource(getClass().getResource("ExactAndCatchAllRedirections.mariadb-01-table.sql"), Charsets.UTF_8).read());
             connection.createStatement().execute(Resources.asCharSource(getClass().getResource("ExactAndCatchAllRedirections.mariadb-02-index.sql"), Charsets.UTF_8).read());
 

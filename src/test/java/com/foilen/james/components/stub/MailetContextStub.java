@@ -12,14 +12,16 @@ package com.foilen.james.components.stub;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.james.core.Domain;
+import org.apache.james.core.MailAddress;
 import org.apache.mailet.HostAddress;
 import org.apache.mailet.LookupException;
 import org.apache.mailet.Mail;
-import org.apache.mailet.MailAddress;
 import org.apache.mailet.MailetContext;
 import org.apache.mailet.TemporaryLookupException;
 import org.slf4j.Logger;
@@ -62,7 +64,7 @@ public class MailetContextStub implements MailetContext {
     }
 
     @Override
-    public Collection<String> getMailServers(String domain) {
+    public Collection<String> getMailServers(Domain domain) {
         return null;
     }
 
@@ -87,7 +89,7 @@ public class MailetContextStub implements MailetContext {
     }
 
     @Override
-    public Iterator<HostAddress> getSMTPHostAddresses(String domain) {
+    public Iterator<HostAddress> getSMTPHostAddresses(Domain domain) {
         return null;
     }
 
@@ -97,7 +99,7 @@ public class MailetContextStub implements MailetContext {
     }
 
     @Override
-    public boolean isLocalServer(String hostname) {
+    public boolean isLocalServer(Domain domain) {
         return false;
     }
 
@@ -128,6 +130,18 @@ public class MailetContextStub implements MailetContext {
 
     @Override
     public void sendMail(Mail mail) throws MessagingException {
+    }
+
+    @Override
+    public void sendMail(Mail mail, long delay, TimeUnit unit) throws MessagingException {
+    }
+
+    @Override
+    public void sendMail(Mail mail, String state) throws MessagingException {
+    }
+
+    @Override
+    public void sendMail(Mail mail, String state, long delay, TimeUnit unit) throws MessagingException {
     }
 
     @Override
