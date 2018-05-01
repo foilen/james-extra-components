@@ -19,6 +19,7 @@ import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
+import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -64,6 +65,13 @@ public class DumpAllSystemErr extends GenericMailet {
             System.err.println("Is null");
         } else {
             System.err.println("Type -> " + datasource.getClass());
+
+            if (datasource instanceof BasicDataSource) {
+                BasicDataSource basicDataSource = (BasicDataSource) datasource;
+                System.err.println("Test On Borrow -> " + basicDataSource.getTestOnBorrow());
+                System.err.println("Validation Query -> " + basicDataSource.getValidationQuery());
+                System.err.println("Validation Query Timeout (sec) -> " + basicDataSource.getValidationQueryTimeout());
+            }
 
             System.err.println("Tables : ");
             try (Connection connection = datasource.getConnection()) {

@@ -25,6 +25,7 @@ dependencies {
 
   // Mailet
   compileOnly "javax.inject:javax.inject:1"
+  compileOnly "commons-dbcp:commons-dbcp:1.4"
   compileOnly "org.apache.james:apache-mailet-base:$apacheJamesVersion"
   compileOnly "org.apache.james:james-server-data-api:$apacheJamesVersion"
   compileOnly "org.apache.james:james-server-protocols-library:$apacheJamesVersion"
