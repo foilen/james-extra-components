@@ -76,6 +76,23 @@ CREATE TABLE IF NOT EXISTS `FOILEN_REDIRECTIONS` (
 CREATE INDEX IF NOT EXISTS `FOILEN_REDIRECTIONS` ON `FOILEN_REDIRECTIONS` (FROM_DOMAIN, FROM_USER);
 ```
 
+# Mailet - LogInfo
+
+## Description
+
+This is used to create an info log entry with the mail id and the `text`.
+
+## Configuration
+
+In *mailetcontainer.xml*, you can add it at any stage with: 
+
+```
+<mailet match="All" class="com.foilen.james.components.mailet.LogInfo">
+	<text>Some text</text>
+</mailet>
+```
+
+
 # Matcher - SenderIsLocalAndSameAsSMTPAuth
 
 ## Description
