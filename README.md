@@ -33,7 +33,7 @@ Logic:
   * Catch-all are defined with FROM_USER='*'
 * Anything else, we do not care since they are messages to relay or for accounts that do not exist
 
-The resolving is done recursively and it supports loops. 
+The resolving is done recursively and it supports loops. If there were a redirection done, the _isRedirection_ attribute is set on the email.
 
 ## Configuration
 
@@ -48,6 +48,10 @@ to
 <mailet match="All" class="com.foilen.james.components.mailet.ExactAndCatchAllRedirections">
 	<cacheMaxTimeInSeconds>2</cacheMaxTimeInSeconds>
 	<cacheMaxEntries>1000</cacheMaxEntries>
+</mailet>
+
+<mailet match="HasMailAttribute=isRedirection" class="ToProcessor">
+  <processor>transport</processor>
 </mailet>
 ```
 

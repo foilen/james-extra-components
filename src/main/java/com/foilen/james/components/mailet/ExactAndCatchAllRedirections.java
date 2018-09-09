@@ -104,7 +104,12 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
             finalRecipients.addAll(process(recipient, allProcessed));
         }
 
-        mail.setRecipients(finalRecipients);
+        // If changed, set an attribute
+        LOGGER.info("{} - Initial recipients {} ; final recipients {}", mail.getName(), mail.getRecipients(), finalRecipients);
+        if (!mail.getRecipients().equals(finalRecipients)) {
+            mail.setRecipients(finalRecipients);
+            mail.setAttribute("isRedirection", "true");
+        }
 
     }
 

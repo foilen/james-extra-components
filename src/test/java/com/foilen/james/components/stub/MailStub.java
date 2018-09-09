@@ -28,6 +28,8 @@ public class MailStub implements Mail {
 
     private static final long serialVersionUID = 1L;
 
+    private String name = "AAA";
+
     private List<MailAddress> recipients = new ArrayList<>();
 
     @Override
@@ -67,7 +69,7 @@ public class MailStub implements Mail {
 
     @Override
     public String getName() {
-        throw new IllegalAccessError("Not Implemented");
+        return name;
     }
 
     @Override
@@ -117,7 +119,7 @@ public class MailStub implements Mail {
 
     @Override
     public Serializable setAttribute(String name, Serializable object) {
-        throw new IllegalAccessError("Not Implemented");
+        return null;
     }
 
     @Override
