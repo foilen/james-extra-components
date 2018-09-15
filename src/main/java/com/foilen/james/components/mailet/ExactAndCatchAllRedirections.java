@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 import javax.mail.MessagingException;
@@ -105,7 +106,9 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
         }
 
         // If changed, set an attribute
-        boolean differentRecipients = !mail.getRecipients().equals(finalRecipients);
+        List<String> initialRecipientsEmails = mail.getRecipients().stream().map(it -> it.asString().toLowerCase()).sorted().collect(Collectors.toList());
+        List<String> finalRecipientsEmails = finalRecipients.stream().map(it -> it.asString().toLowerCase()).sorted().collect(Collectors.toList());
+        boolean differentRecipients = !initialRecipientsEmails.equals(finalRecipientsEmails);
         LOGGER.info("{} - Initial recipients {} ; final recipients {} ; is different {}", mail.getName(), mail.getRecipients(), finalRecipients, differentRecipients);
         if (differentRecipients) {
             mail.setRecipients(finalRecipients);

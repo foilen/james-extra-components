@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -30,6 +32,7 @@ public class MailStub implements Mail {
 
     private String name = "AAA";
 
+    private Map<String, Serializable> attributes = new HashMap<>();
     private List<MailAddress> recipients = new ArrayList<>();
 
     @Override
@@ -39,7 +42,7 @@ public class MailStub implements Mail {
 
     @Override
     public Serializable getAttribute(String name) {
-        throw new IllegalAccessError("Not Implemented");
+        return attributes.get(name);
     }
 
     @Override
@@ -119,7 +122,7 @@ public class MailStub implements Mail {
 
     @Override
     public Serializable setAttribute(String name, Serializable object) {
-        return null;
+        return attributes.put(name, object);
     }
 
     @Override
