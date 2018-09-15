@@ -105,8 +105,9 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
         }
 
         // If changed, set an attribute
-        LOGGER.info("{} - Initial recipients {} ; final recipients {}", mail.getName(), mail.getRecipients(), finalRecipients);
-        if (!mail.getRecipients().equals(finalRecipients)) {
+        boolean differentRecipients = !mail.getRecipients().equals(finalRecipients);
+        LOGGER.info("{} - Initial recipients {} ; final recipients {} ; is different {}", mail.getName(), mail.getRecipients(), finalRecipients, differentRecipients);
+        if (differentRecipients) {
             mail.setRecipients(finalRecipients);
             mail.setAttribute("isRedirection", "true");
         }
