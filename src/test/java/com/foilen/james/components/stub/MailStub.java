@@ -41,6 +41,11 @@ public class MailStub implements Mail {
     }
 
     @Override
+    public Mail duplicate() throws MessagingException {
+        throw new IllegalAccessError("Not Implemented");
+    }
+
+    @Override
     public Serializable getAttribute(String name) {
         return attributes.get(name);
     }

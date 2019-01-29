@@ -12,6 +12,7 @@ package com.foilen.james.components.matcher;
 import java.util.Collection;
 
 import org.apache.james.core.MailAddress;
+import org.apache.james.core.MaybeSender;
 import org.apache.mailet.Mail;
 import org.apache.mailet.base.GenericMatcher;
 
@@ -23,12 +24,12 @@ public class SenderIsLocalAndSameAsSMTPAuth extends GenericMatcher {
     public Collection<MailAddress> match(Mail mail) {
 
         String authUser = (String) mail.getAttribute(Mail.SMTP_AUTH_USER_ATTRIBUTE_NAME);
-        MailAddress sender = mail.getSender();
-        if (sender == null) {
+        MaybeSender maybeSender = mail.getMaybeSender();
+        if (maybeSender == null) {
             return ImmutableList.of();
         }
 
-        String senderEmail = sender.asString();
+        String senderEmail = maybeSender.asString();
         if (authUser != null && senderEmail.equalsIgnoreCase(authUser)) {
             return mail.getRecipients();
         } else {
