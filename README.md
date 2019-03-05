@@ -33,7 +33,7 @@ Logic:
   * Catch-all are defined with FROM_USER='*'
 * Anything else, we do not care since they are messages to relay or for accounts that do not exist
 
-The resolving is done recursively and it supports loops. If there were a redirection done, the _isRedirection_ attribute is set on the email.
+The resolving is done recursively and it supports loops. If there were a redirection done, the _isRedirection_ header is set on the email.
 
 ## Configuration
 
@@ -50,7 +50,7 @@ to
 	<cacheMaxEntries>1000</cacheMaxEntries>
 </mailet>
 
-<mailet match="HasMailAttribute=isRedirection" class="ToProcessor">
+<mailet match="HasHeader=isRedirection" class="ToProcessor">
   <processor>transport</processor>
 </mailet>
 ```

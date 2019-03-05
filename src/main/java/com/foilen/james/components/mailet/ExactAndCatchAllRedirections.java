@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 
 import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
+import org.apache.mailet.PerRecipientHeaders.Header;
 import org.apache.mailet.base.GenericMailet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +35,8 @@ import com.google.common.base.Charsets;
 import com.google.common.io.Resources;
 
 public class ExactAndCatchAllRedirections extends GenericMailet {
+
+    public static final String HEADER_IS_REDIRECTION = "isRedirection";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExactAndCatchAllRedirections.class);
 
@@ -98,21 +101,41 @@ public class ExactAndCatchAllRedirections extends GenericMailet {
     @Override
     public void service(Mail mail) throws MessagingException {
 
+        // Remove all isRedirection header
+        mail.getMessage().removeHeader(HEADER_IS_REDIRECTION);
+        mail.getPerRecipientSpecificHeaders().getRecipientsWithSpecificHeaders() //
+                .stream().collect(Collectors.toList()) // Streaming for concurrent modifications
+                .forEach(recipient -> {
+                    mail.getPerRecipientSpecificHeaders().getHeadersForRecipient(recipient).remove(Header.builder().name(HEADER_IS_REDIRECTION).value("true").build());
+                });
+
+        // Get the final list
+        Collection<MailAddress> initialRecipients = mail.getRecipients();
         Set<MailAddress> finalRecipients = new HashSet<>();
         Set<MailAddress> allProcessed = new HashSet<>();
 
-        for (MailAddress recipient : mail.getRecipients()) {
+        for (MailAddress recipient : initialRecipients) {
             finalRecipients.addAll(process(recipient, allProcessed));
         }
 
         // If changed, set an attribute
         List<String> initialRecipientsEmails = mail.getRecipients().stream().map(it -> it.asString().toLowerCase()).sorted().collect(Collectors.toList());
         List<String> finalRecipientsEmails = finalRecipients.stream().map(it -> it.asString().toLowerCase()).sorted().collect(Collectors.toList());
+        // Doing the equals test with Strings because it is not working with MailAddresses
         boolean differentRecipients = !initialRecipientsEmails.equals(finalRecipientsEmails);
-        LOGGER.info("{} - Initial recipients {} ; final recipients {} ; is different {}", mail.getName(), mail.getRecipients(), finalRecipients, differentRecipients);
+        LOGGER.info("{} - Initial recipients {} ; final recipients {} ; is different {}", mail.getName(), initialRecipients, finalRecipients, differentRecipients);
         if (differentRecipients) {
             mail.setRecipients(finalRecipients);
-            mail.setAttribute("isRedirection", "true");
+
+            // Mark those that are redirections
+            boolean allChanged = !finalRecipients.removeAll(initialRecipients);
+            if (allChanged) {
+                mail.getMessage().addHeader(HEADER_IS_REDIRECTION, "true");
+            } else {
+                finalRecipients.forEach(recipient -> {
+                    mail.addSpecificHeaderForRecipient(Header.builder().name(HEADER_IS_REDIRECTION).value("true").build(), recipient);
+                });
+            }
         }
 
     }

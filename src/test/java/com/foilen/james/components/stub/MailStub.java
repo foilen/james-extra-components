@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.mail.MessagingException;
+import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MailAddress;
@@ -34,10 +35,12 @@ public class MailStub implements Mail {
 
     private Map<String, Serializable> attributes = new HashMap<>();
     private List<MailAddress> recipients = new ArrayList<>();
+    private PerRecipientHeaders perRecipientHeaders = new PerRecipientHeaders();
+    private MimeMessage message = new MimeMessage((Session) null);
 
     @Override
     public void addSpecificHeaderForRecipient(Header header, MailAddress recipient) {
-        throw new IllegalAccessError("Not Implemented");
+        perRecipientHeaders.addHeaderForRecipient(header, recipient);
     }
 
     @Override
@@ -67,7 +70,7 @@ public class MailStub implements Mail {
 
     @Override
     public MimeMessage getMessage() throws MessagingException {
-        throw new IllegalAccessError("Not Implemented");
+        return message;
     }
 
     @Override
@@ -82,7 +85,7 @@ public class MailStub implements Mail {
 
     @Override
     public PerRecipientHeaders getPerRecipientSpecificHeaders() {
-        throw new IllegalAccessError("Not Implemented");
+        return perRecipientHeaders;
     }
 
     @Override

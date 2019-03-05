@@ -10,7 +10,9 @@
 package com.foilen.james.components.mailet;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.mail.internet.AddressException;
@@ -20,6 +22,7 @@ import org.apache.james.core.MailAddress;
 import org.apache.mailet.Mail;
 import org.apache.mailet.Mailet;
 import org.apache.mailet.MailetConfig;
+import org.apache.mailet.PerRecipientHeaders.Header;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -32,7 +35,9 @@ import com.google.common.base.Joiner;
 
 public class ExactAndCatchAllRedirectionsTest {
 
-    private void execute(List<String> initialRecipients, List<String> expectedFinalRecipients, Mailet mailet, boolean expectDifferent) throws Exception {
+    private void execute(List<String> initialRecipients, List<String> expectedFinalRecipients, Mailet mailet, List<String> expectedRedirectedEmails) throws Exception {
+
+        System.out.println("---");
 
         // Prepare
         Mail mail = new MailStub();
@@ -44,6 +49,16 @@ public class ExactAndCatchAllRedirectionsTest {
             }
         }).collect(Collectors.toList()));
 
+        // Add headers everywhere
+        mail.getMessage().addHeader(ExactAndCatchAllRedirections.HEADER_IS_REDIRECTION, "true");
+        initialRecipients.forEach(it -> {
+            try {
+                mail.addSpecificHeaderForRecipient(Header.builder().name(ExactAndCatchAllRedirections.HEADER_IS_REDIRECTION).value("true").build(), new MailAddress(it));
+            } catch (AddressException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
         // Call
         mailet.service(mail);
 
@@ -51,11 +66,26 @@ public class ExactAndCatchAllRedirectionsTest {
         List<String> actualRecipients = mail.getRecipients().stream().map(it -> it.asString()).sorted().collect(Collectors.toList());
         List<String> expectedRecipients = expectedFinalRecipients.stream().sorted().collect(Collectors.toList());
         Assert.assertEquals(Joiner.on('\n').join(expectedRecipients), Joiner.on('\n').join(actualRecipients));
-        if (expectDifferent) {
-            Assert.assertEquals("true", mail.getAttribute("isRedirection"));
+
+        // Get those marked different
+        boolean allDifferent = mail.getMessage().getHeader(ExactAndCatchAllRedirections.HEADER_IS_REDIRECTION) != null;
+        Set<String> actualRedirectedEmails = new HashSet<>();
+        if (allDifferent) {
+            System.out.println("Marked all");
+            mail.getRecipients().forEach(it -> actualRedirectedEmails.add(it.asString()));
         } else {
-            Assert.assertNull(mail.getAttribute("isRedirection"));
+            mail.getPerRecipientSpecificHeaders().getHeadersByRecipient().forEach((mailAddress, header) -> {
+                if (ExactAndCatchAllRedirections.HEADER_IS_REDIRECTION.equals(header.getName())) {
+                    System.out.println("Marked " + mailAddress.asString());
+                    actualRedirectedEmails.add(mailAddress.asString());
+                }
+            });
         }
+
+        // Assert those marked different
+        actualRecipients = actualRedirectedEmails.stream().sorted().collect(Collectors.toList());
+        expectedRecipients = expectedRedirectedEmails.stream().sorted().collect(Collectors.toList());
+        Assert.assertEquals(Joiner.on('\n').join(expectedRecipients), Joiner.on('\n').join(actualRecipients));
 
     }
 
@@ -111,21 +141,27 @@ public class ExactAndCatchAllRedirectionsTest {
         jdbcTemplate.update("INSERT INTO FOILEN_REDIRECTIONS(FROM_USER, FROM_DOMAIN, TO_EMAIL) VALUES ('l2', 's1.example.com', 'any@s1.example.com')");
 
         // Test nothing
-        execute(Arrays.asList(), Arrays.asList(), mailet, false);
+        execute(Arrays.asList(), Arrays.asList(), mailet, Arrays.asList());
         // Test not handled
-        execute(Arrays.asList("dontcare@out.example.com"), Arrays.asList("dontcare@out.example.com"), mailet, false);
+        execute(Arrays.asList("dontcare@out.example.com"), Arrays.asList("dontcare@out.example.com"), mailet, //
+                Arrays.asList());
         // Test simple redirection
-        execute(Arrays.asList("r1@s1.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com"), mailet, true);
+        execute(Arrays.asList("r1@s1.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com"), mailet, //
+                Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com"));
         // Test local account
-        execute(Arrays.asList("a1@s1.example.com"), Arrays.asList("a1@s1.example.com"), mailet, false);
+        execute(Arrays.asList("a1@s1.example.com"), Arrays.asList("a1@s1.example.com"), mailet, Arrays.asList());
         // Test catch-all
-        execute(Arrays.asList("blah@s1.example.com"), Arrays.asList("catchall1@example.com", "catchall2@example.com"), mailet, true);
+        execute(Arrays.asList("blah@s1.example.com"), Arrays.asList("catchall1@example.com", "catchall2@example.com"), mailet, //
+                Arrays.asList("catchall1@example.com", "catchall2@example.com"));
         // Test multi-redirection
-        execute(Arrays.asList("rm1@s3.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "a5@s1.example.com"), mailet, true);
+        execute(Arrays.asList("rm1@s3.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "a5@s1.example.com"), mailet, //
+                Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "a5@s1.example.com"));
         // Test loop
-        execute(Arrays.asList("l1@s1.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "catchall1@example.com", "catchall2@example.com"), mailet, true);
+        execute(Arrays.asList("l1@s1.example.com"), Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "catchall1@example.com", "catchall2@example.com"), mailet, //
+                Arrays.asList("a1@s1.example.com", "a2@s1.example.com", "outside@out.example.com", "catchall1@example.com", "catchall2@example.com"));
         // Test many kinds
-        execute(Arrays.asList("dontcare@out.example.com", "a5@s1.example.com", "r2@s1.example.com"), Arrays.asList("dontcare@out.example.com", "a5@s1.example.com", "a3@s1.example.com"), mailet, true);
+        execute(Arrays.asList("dontcare@out.example.com", "a5@s1.example.com", "r2@s1.example.com"), Arrays.asList("dontcare@out.example.com", "a5@s1.example.com", "a3@s1.example.com"), mailet, //
+                Arrays.asList("a3@s1.example.com"));
     }
 
 }
