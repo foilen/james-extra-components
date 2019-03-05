@@ -13,13 +13,16 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Enumeration;
 
 import javax.inject.Inject;
+import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 import javax.sql.DataSource;
 
 import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.james.core.MailAddress;
 import org.apache.james.core.MaybeSender;
 import org.apache.mailet.Mail;
 import org.apache.mailet.MailetConfig;
@@ -27,6 +30,8 @@ import org.apache.mailet.MailetContext;
 import org.apache.mailet.base.GenericMailet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Multimap;
 
 public class DumpAllSystemErr extends GenericMailet {
 
@@ -110,6 +115,20 @@ public class DumpAllSystemErr extends GenericMailet {
             System.err.println("---[Mail - Recipients]---");
             mail.getRecipients().forEach(it -> {
                 System.err.println(it.asString());
+            });
+
+            // Headers
+            System.err.println("---[Mail - Headers]---");
+            Enumeration<Header> headers = mail.getMessage().getAllHeaders();
+            while (headers.hasMoreElements()) {
+                Header header = headers.nextElement();
+                System.err.println(header.getName() + " -> " + header.getValue());
+            }
+            System.err.println("---[Mail - Headers Per Recipient]---");
+            Multimap<MailAddress, org.apache.mailet.PerRecipientHeaders.Header> headersByRecipient = mail.getPerRecipientSpecificHeaders().getHeadersByRecipient();
+            headersByRecipient.entries().forEach(entry -> {
+                org.apache.mailet.PerRecipientHeaders.Header header = entry.getValue();
+                System.err.println(entry.getKey().asString() + " : " + header.getName() + " -> " + header.getValue());
             });
 
             // Message
