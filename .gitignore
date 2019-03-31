@@ -12,6 +12,7 @@ bin/
 # IDEA
 .idea/
 /out/
+*.iml
 
 # Projects
 _*
