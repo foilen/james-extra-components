@@ -50,7 +50,7 @@ to
 	<cacheMaxEntries>1000</cacheMaxEntries>
 </mailet>
 
-<mailet match="HasHeader=isRedirection" class="ToProcessor">
+<mailet match="com.foilen.james.components.matcher.HasHeaderGlobalAndSpecific=isRedirection" class="ToProcessor">
   <processor>transport</processor>
 </mailet>
 ```
@@ -111,6 +111,23 @@ In *mailetcontainer.xml*, you can add it at any stage with:
 	<name>header1,header2</name>
 </mailet>
 ```
+
+# Matcher - HasHeaderGlobalAndSpecific
+
+## Description
+
+Matches when the header or headers with specific values or not matches the global mail headers or specific per recipient.
+
+## Configuration
+
+In *mailetcontainer.xml*, you can add it at any stage with: 
+
+```
+<mailet match="com.foilen.james.components.matcher.HasHeaderGlobalAndSpecific=isRedirection" class="ToProcessor">
+	<processor>auth-user-relay</processor>
+</mailet>
+```
+
 
 # Matcher - SenderIsLocalAndSameAsSMTPAuth
 
