@@ -96,6 +96,21 @@ In *mailetcontainer.xml*, you can add it at any stage with:
 </mailet>
 ```
 
+# Mailet - RemoveHeaderGlobalAndSpecific
+
+## Description
+
+This is used to remove all the named headers from the mail message and for specific header per recipient.
+
+## Configuration
+
+In *mailetcontainer.xml*, you can add it at any stage with: 
+
+```
+<mailet match="All" class="com.foilen.james.components.mailet.RemoveHeaderGlobalAndSpecific">
+	<name>header1,header2</name>
+</mailet>
+```
 
 # Matcher - SenderIsLocalAndSameAsSMTPAuth
 
