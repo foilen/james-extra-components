@@ -129,7 +129,11 @@ In *mailetcontainer.xml*, you can add it at any stage with:
 ```
 
 
-# Matcher - SenderIsLocalAndSameAsSMTPAuth
+# Matcher - SenderIsLocalAndSameAsSMTPAuth (deprecated)
+
+# Deprecation
+
+James is now doing it automatically.
 
 ## Description
 

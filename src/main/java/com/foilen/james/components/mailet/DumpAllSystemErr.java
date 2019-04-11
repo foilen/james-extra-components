@@ -99,9 +99,11 @@ public class DumpAllSystemErr extends GenericMailet {
 
             // Attributes
             System.err.println("---[Mail - Attributes]---");
-            mail.getAttributeNames().forEachRemaining(name -> {
-                System.err.println(name + " -> " + mail.getAttribute(name));
-            });
+            mail.attributes() //
+                    .sorted((a, b) -> a.getName().asString().compareTo(b.getName().asString())) //
+                    .forEach(attribute -> {
+                        System.err.println(attribute.getName().asString() + " -> " + attribute.getValue().getValue());
+                    });
 
             System.err.println("---[Mail - MaybeSender]---");
             MaybeSender maybeSender = mail.getMaybeSender();

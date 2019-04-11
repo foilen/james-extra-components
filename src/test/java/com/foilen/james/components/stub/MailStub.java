@@ -17,15 +17,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.MimeMessage;
 
 import org.apache.james.core.MailAddress;
+import org.apache.mailet.Attribute;
+import org.apache.mailet.AttributeName;
+import org.apache.mailet.AttributeValue;
 import org.apache.mailet.Mail;
 import org.apache.mailet.PerRecipientHeaders;
 import org.apache.mailet.PerRecipientHeaders.Header;
+
+import com.google.common.base.Preconditions;
 
 public class MailStub implements Mail {
 
@@ -33,7 +40,7 @@ public class MailStub implements Mail {
 
     private String name = "AAA";
 
-    private Map<String, Serializable> attributes = new HashMap<>();
+    private Map<AttributeName, Attribute> attributes = new HashMap<>();
     private List<MailAddress> recipients = new ArrayList<>();
     private PerRecipientHeaders perRecipientHeaders = new PerRecipientHeaders();
     private MimeMessage message = new MimeMessage((Session) null);
@@ -44,13 +51,28 @@ public class MailStub implements Mail {
     }
 
     @Override
+    public Stream<AttributeName> attributeNames() {
+        return attributes.keySet().stream();
+    }
+
+    @Override
+    public Stream<Attribute> attributes() {
+        return attributes.values().stream();
+    }
+
+    @Override
     public Mail duplicate() throws MessagingException {
         throw new IllegalAccessError("Not Implemented");
     }
 
     @Override
+    public Optional<Attribute> getAttribute(AttributeName name) {
+        return Optional.ofNullable(attributes.get(name));
+    }
+
+    @Override
     public Serializable getAttribute(String name) {
-        return attributes.get(name);
+        return toSerializable(attributes.get(AttributeName.of(name)));
     }
 
     @Override
@@ -124,13 +146,29 @@ public class MailStub implements Mail {
     }
 
     @Override
+    public Optional<Attribute> removeAttribute(AttributeName attributeName) {
+        Attribute previous = attributes.remove(attributeName);
+        return Optional.ofNullable(previous);
+    }
+
+    @Override
     public Serializable removeAttribute(String name) {
         throw new IllegalAccessError("Not Implemented");
     }
 
     @Override
+    public Optional<Attribute> setAttribute(Attribute attribute) {
+        Preconditions.checkNotNull(attribute.getName().asString(), "AttributeName should not be null");
+        return Optional.ofNullable(this.attributes.put(attribute.getName(), attribute));
+    }
+
+    @Override
     public Serializable setAttribute(String name, Serializable object) {
-        return attributes.put(name, object);
+        Preconditions.checkNotNull(name, "Key of an attribute should not be null");
+        Attribute attribute = Attribute.convertToAttribute(name, object);
+        Attribute previous = attributes.put(attribute.getName(), attribute);
+
+        return toSerializable(previous);
     }
 
     @Override
@@ -161,6 +199,10 @@ public class MailStub implements Mail {
     @Override
     public void setState(String state) {
         throw new IllegalAccessError("Not Implemented");
+    }
+
+    private Serializable toSerializable(Attribute previous) {
+        return (Serializable) Optional.ofNullable(previous).map(Attribute::getValue).map(AttributeValue::getValue).orElse(null);
     }
 
 }
